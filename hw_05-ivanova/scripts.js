@@ -1,76 +1,75 @@
 "use strict";
 
-function getFirstOperand() {
-  let firstOperand;
+const AVAILABLE_OPERATORS = "+*";
+let result;
+let expression = "";
+let operand;
+
+function getUserData(title, validationFunction) {
+  let result;
 
   do {
-    firstOperand = prompt("Введите первое число") || firstOperand.trim();
-  } while (isNaN(firstOperand));
+    result = prompt(title);
 
-  return Number(firstOperand);
+    if (result === null) {
+      break;
+    }
+  } while (!validationFunction(result));
+
+  return result;
 }
 
-function getOperator() {
-  let mathOperator;
+function operatorValidation(value) {
+  const trim = (value || "").trim();
+  return value.length === 1 && AVAILABLE_OPERATORS.indexOf(value) !== -1;
+}
 
-  do {
-    mathOperator = prompt(
-      "Введите один из математических операторов (+, -, *, /, **, %)"
-    );
-  } while (
-    !(
-      mathOperator === "+" ||
-      mathOperator === "-" ||
-      mathOperator === "*" ||
-      mathOperator === "/" ||
-      mathOperator === "**" ||
-      mathOperator === "%"
-    )
+function operandValidation(value) {
+  const numberValue = Number(value);
+  return (
+    !isNaN(numberValue) &&
+    Number.isInteger(numberValue) &&
+    numberValue != 0 &&
+    (numberValue != Infinity || numberValue != -Infinity)
   );
-
-  return mathOperator;
 }
 
-function getSecondOperand() {
-  let secondOperand;
+function calculateExpression(x, y, operator) {
+  const xNum = Number(x);
+  const yNum = Number(y);
 
-  do {
-    secondOperand = prompt("Введите второе число") || secondOperand.trim();
-  } while (isNaN(secondOperand));
-
-  return Number(secondOperand);
-}
-
-function calculate(firstOperand, mathOperator, secondOperand) {
-  let answer;
-
-  switch (mathOperator) {
+  switch (operator) {
     case "+":
-      answer = Number(firstOperand) + Number(secondOperand);
-      break;
-    case "-":
-      answer = firstOperand - secondOperand;
-      break;
+      return xNum + yNum;
     case "*":
-      answer = firstOperand * secondOperand;
-      break;
-    case "/":
-      answer = firstOperand / secondOperand;
-      break;
-    case "**":
-      answer = firstOperand ** secondOperand;
-      break;
-    case "%":
-      answer = firstOperand % secondOperand;
-      break;
+      return xNum * yNum;
+  }
+}
+
+const operator = getUserData("Введите оператор", operatorValidation);
+
+do {
+  operand = getUserData("Введите число", operandValidation, expression);
+  console.log(operand);
+
+  if (operand === null) {
+    continue;
   }
 
-  return `${firstOperand} ${mathOperator} ${secondOperand} = ${answer}`;
+  if (result === undefined) {
+    result = +operand;
+    expression += operand;
+  } else {
+    result = calculateExpression(result, operand, operator);
+    expression += ` ${operator} ${operand}`;
+  }
+} while (operand !== null);
+
+console.log(result);
+console.log(expression);
+
+if (result > Number.MAX_SAFE_INTEGER || result < Number.MIN_SAFE_INTEGER) {
+  alert("Число слишком большое");
+} else {
+  alert(`${expression} = ${result}`);
 }
-
-const firstOperand = getFirstOperand();
-const mathOperator = getOperator();
-const secondOperand = getSecondOperand();
-const answer = calculate(firstOperand, mathOperator, secondOperand);
-
-alert(answer);
